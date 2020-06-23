@@ -1,0 +1,196 @@
+<html>
+<head>
+
+<script
+	src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.4/angular.js"></script>
+
+<title>AngularJS MY Rest example</title>
+<script type="text/javascript">
+	var app = angular.module("WeatherManagement", []);
+
+	//Controller Part
+	app.controller("MYWeatherController", function($scope, $http) {
+
+		$scope.countries = [];
+		$scope.countryForm = {
+			id : -1,
+			longitude : "",
+			latitude : ""
+		};
+		$scope.showResult = false;
+
+		$scope.searchWeather = function() {
+
+			var method = "GET";
+			var url = 'getWeather/' + $scope.countryForm.latitude + '/'
+					+ $scope.countryForm.longitude;
+
+			$http({
+				method : method,
+				url : url,
+				data : angular.toJson($scope.countryForm),
+				headers : {
+					'Content-Type' : 'application/json'
+				}
+			}).then(_successSubmit, _error);
+		};
+
+		function _successSubmit(response) {
+			$scope.countries = response.data;
+			if (response.data.length >= 1) {
+				$scope.showResult = true;
+			} else {
+				$scope.countries = [];
+			}
+			_clearFormData();
+		}
+
+		function _error(response) {
+			$scope.showResult = false;
+			$scope.countries = [];
+			console.log(response.statusText);
+		}
+
+		//Clear the form
+		function _clearFormData() {
+			$scope.countryForm.id = -1;
+			$scope.countryForm.longitude = "";
+			$scope.countryForm.latitude = "";
+
+		}
+		;
+	});
+</script>
+<style>
+.blue-button {
+	background: #25A6E1;
+	filter: progid: DXImageTransform.Microsoft.gradient( startColorstr='#25A6E1',
+		endColorstr='#188BC0', GradientType=0);
+	padding: 3px 5px;
+	color: #fff;
+	font-family: 'Helvetica Neue', sans-serif;
+	font-size: 12px;
+	border-radius: 2px;
+	-moz-border-radius: 2px;
+	-webkit-border-radius: 4px;
+	border: 1px solid #1A87B9
+}
+
+.red-button {
+	background: #CD5C5C;
+	padding: 3px 5px;
+	color: #fff;
+	font-family: 'Helvetica Neue', sans-serif;
+	font-size: 12px;
+	border-radius: 2px;
+	-moz-border-radius: 2px;
+	-webkit-border-radius: 4px;
+	border: 1px solid #CD5C5C
+}
+
+table {
+	font-family: "Helvetica Neue", Helvetica, sans-serif;
+	width: 50%;
+}
+
+caption {
+	text-align: left;
+	color: silver;
+	font-weight: bold;
+	text-transform: uppercase;
+	padding: 5px;
+}
+
+th {
+	background: SteelBlue;
+	color: white;
+}
+
+tbody tr:nth-child(even) {
+	background: WhiteSmoke;
+}
+
+tbody tr td:nth-child(2) {
+	text-align: center;
+}
+
+tbody tr td:nth-child(3), tbody tr td:nth-child(4) {
+	text-align: center;
+	font-family: monospace;
+}
+
+tfoot {
+	background: SeaGreen;
+	color: white;
+	text-align: right;
+}
+
+tfoot tr th:last-child {
+	font-family: monospace;
+}
+
+td, th {
+	border: 1px solid gray;
+	width: 25%;
+	text-align: left;
+	padding: 5px 10px;
+}
+</style>
+<head>
+<body ng-app="WeatherManagement" ng-controller="MYWeatherController">
+	<h1>Weather Forecast</h1>
+	<form ng-submit="searchWeather()">
+		<table>
+
+			<tr>
+				<th colspan="2">Fetch country Weather Forecast by entering
+					Latitude and Longitude</th>
+			</tr>
+
+			<tr>
+				<td>Latitude</td>
+				<td><input type="text" ng-model="countryForm.latitude" required /></td>
+			</tr>
+
+			<tr>
+				<td>Longitude</td>
+				<td><input type="text" ng-model="countryForm.longitude"
+					required /></td>
+			</tr>
+
+
+			<tr>
+				<td colspan="2"><input type="submit" value="Search"
+					class="blue-button" /></td>
+			</tr>
+		</table>
+	</form>
+	<table>
+		<tr>
+
+			<th>Zone</th>
+			<th>Temperature</th>
+			<th>Humidity</th>
+			<th>Wind Speed</th>
+			<th>Pressure</th>
+		</tr>
+
+		<tr ng-if=!showResult>
+			<td bgcolor="red" colspan="5">No data found, please Enter valid
+				Latitude and Longitude</td>
+		</tr>
+		<tr ng-if="showResult">
+		<tr ng-repeat="weather in countries">
+
+			<td>{{ weather.timezone }}</td>
+			<td>{{ weather.currently.temperature }}</td>
+			<td>{{ weather.currently.humidity }}</td>
+			<td>{{ weather.currently.windSpeed }}</td>
+			<td>{{ weather.currently.pressure }}</td>
+
+		</tr>
+		</tr>
+	</table>
+
+</body>
+</html>
